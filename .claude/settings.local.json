@@ -1,0 +1,38 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir:*)",
+      "Bash(docker run:*)",
+      "Bash(docker system:*)",
+      "Bash(docker rmi:*)",
+      "Bash(chmod:*)",
+      "Bash(powershell.exe -NoProfile -Command \"[System.Management.Automation.PSParser]::Tokenize((Get-Content ''C:\\Users\\JaunvanHeerden\\Documents\\GitHub\\docker-toolbox\\install.ps1'' -Raw), [ref]$null) | Out-Null; Write-Host ''Syntax check passed''\")",
+      "Bash(powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"C:\\Users\\JaunvanHeerden\\Documents\\GitHub\\docker-toolbox\\validate.ps1\")",
+      "Bash(powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"C:\\Users\\JaunvanHeerden\\Documents\\GitHub\\docker-toolbox\\validate2.ps1\")",
+      "Bash(powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"C:\\Users\\JaunvanHeerden\\Documents\\GitHub\\docker-toolbox\\check-braces.ps1\")",
+      "Bash(powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"C:\\Users\\JaunvanHeerden\\Documents\\GitHub\\docker-toolbox\\test-load.ps1\")",
+      "Bash(cat:*)",
+      "Bash(unix2dos:*)",
+      "Bash(powershell.exe -NoProfile -Command \"echo $PROFILE\")",
+      "Bash(powershell.exe -NoProfile -Command \"Write-Output $PROFILE\")",
+      "Bash(powershell.exe -NoProfile -Command '$PROFILE')",
+      "Bash(powershell.exe -NoProfile -Command \". $PROFILE\")",
+      "Bash(powershell.exe -Command \"& { . $PROFILE }\")",
+      "Bash(powershell.exe -NoProfile -Command \"cat $PROFILE\")",
+      "Bash(del .tmux.conf)",
+      "Bash(powershell.exe -NoProfile -Command \"try { [System.Management.Automation.PSParser]::Tokenize((Get-Content ''C:\\Users\\JaunvanHeerden\\Documents\\GitHub\\docker-toolbox\\install-interactive.ps1'' -Raw), [ref]$null) | Out-Null; Write-Host ''Syntax check passed'' } catch { Write-Host ''Syntax error:''; Write-Host $_Exception.Message; exit 1 }\")",
+      "Bash(powershell.exe:*)",
+      "Bash(ls \"C:\\Users\\JaunvanHeerden\\Documents\\WindowsPowerShell\"\" | grep -E \"profile.*backup \")",
+      "Bash(powershell.exe -Command \"Get-Content ''docker-dev-tools.md'' | Select-String -Pattern ''function dt(latex|pdflatex|xelatex|lualatex|bibtex)'' | ForEach-Object { $_.Line }\")",
+      "Bash(docker pull:*)",
+      "Bash(git checkout:*)",
+      "Bash(python generate.py:*)",
+      "Bash(wc:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git rm:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

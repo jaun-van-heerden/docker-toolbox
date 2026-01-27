@@ -1,0 +1,1188 @@
+# Docker Toolbox - Tool Definitions
+# Single source of truth for all tools
+# This file is used to generate:
+#   - docker-dev-tools.md (documentation)
+#   - install-interactive.ps1 (Windows installer)
+#   - install.sh (Linux/macOS installer)
+
+version: "1.0"
+
+# Tool categories
+categories:
+  - id: terminal-tools
+    name: Terminal Tools
+    description: Command-line utilities and terminal enhancements
+
+  - id: programming-languages
+    name: Programming Languages
+    description: Language runtimes and interpreters
+
+  - id: development-environments
+    name: Development Environments & IDEs
+    description: Complete development environments and IDEs
+
+  - id: static-site-generators
+    name: Static Site Generators
+    description: Tools for building static websites
+
+  - id: build-task-runners
+    name: Build & Task Runners
+    description: Task automation and build tools
+
+  - id: testing-tools
+    name: Testing Tools
+    description: Testing frameworks and tools
+
+  - id: databases
+    name: Databases
+    description: Database servers and clients
+
+  - id: monitoring
+    name: Monitoring & Visualization
+    description: Monitoring, metrics, and dashboards
+
+  - id: message-brokers
+    name: Message Brokers & IoT
+    description: MQTT, message queues, and IoT platforms
+
+  - id: devops-cloud
+    name: DevOps & Cloud CLI
+    description: Cloud CLIs and infrastructure tools
+
+  - id: code-quality
+    name: Code Quality & Linting
+    description: Code formatters and linters
+
+  - id: media-documents
+    name: Media & Documents
+    description: Media processing and document conversion
+
+  - id: networking-security
+    name: Networking & Security
+    description: Network tools and security scanners
+
+  - id: web-servers-security
+    name: Web Servers & Security
+    description: Web servers and security tools
+
+  - id: api-development
+    name: API Development
+    description: API testing and development tools
+
+  - id: git-tools
+    name: Git Tools
+    description: Git and version control tools
+
+  - id: ai-ml
+    name: AI & Machine Learning
+    description: AI models and machine learning tools
+
+# Tools
+tools:
+  # ==================== Terminal Tools ====================
+
+  - name: tmux
+    category: terminal-tools
+    description: Terminal multiplexer for managing multiple sessions
+    image: alpine
+    type: ephemeral
+    aliases:
+      - dttmux
+    commands:
+      default: |
+        docker run --rm -it -v ${PWD}:/workspace -v ~/.tmux.conf:/root/.tmux.conf -w /workspace alpine sh -c "apk add --no-cache tmux bash git && tmux"
+    notes: |
+      Container and tmux sessions are deleted when you exit. Mount your own `.tmux.conf` for custom settings.
+
+  - name: htop
+    category: terminal-tools
+    description: Interactive process viewer
+    image: alpine
+    type: ephemeral
+    aliases:
+      - dthtop
+    commands:
+      default: |
+        docker run --rm -it --pid=host alpine sh -c "apk add --no-cache htop && htop"
+
+  - name: lazygit
+    category: terminal-tools
+    description: Simple terminal UI for git commands
+    image: lazyteam/lazygit
+    type: ephemeral
+    aliases:
+      - dtlazygit
+    commands:
+      default: |
+        docker run --rm -it -v ${PWD}:/repo -w /repo lazyteam/lazygit
+
+  - name: lazydocker
+    category: terminal-tools
+    description: Simple terminal UI for Docker management
+    image: lazyteam/lazydocker
+    type: ephemeral
+    aliases:
+      - dtlazydocker
+    commands:
+      default: |
+        docker run --rm -it -v /var/run/docker.sock:/var/run/docker.sock lazyteam/lazydocker
+
+  - name: ripgrep
+    category: terminal-tools
+    description: Lightning-fast search tool (better than grep)
+    image: alpine
+    type: ephemeral
+    aliases:
+      - dtrg
+    commands:
+      default: |
+        docker run --rm -v ${PWD}:/data -w /data alpine sh -c "apk add --no-cache ripgrep > /dev/null 2>&1 && rg $args"
+
+  - name: fd
+    category: terminal-tools
+    description: Fast and user-friendly alternative to find
+    image: alpine
+    type: ephemeral
+    aliases:
+      - dtfd
+    commands:
+      default: |
+        docker run --rm -v ${PWD}:/data -w /data alpine sh -c "apk add --no-cache fd > /dev/null 2>&1 && fd $args"
+
+  - name: bat
+    category: terminal-tools
+    description: Cat clone with syntax highlighting
+    image: alpine
+    type: ephemeral
+    aliases:
+      - dtbat
+    commands:
+      default: |
+        docker run --rm -v ${PWD}:/data -w /data alpine sh -c "apk add --no-cache bat > /dev/null 2>&1 && bat $args"
+
+  - name: jq
+    category: terminal-tools
+    description: Lightweight JSON processor
+    image: ghcr.io/jqlang/jq
+    type: ephemeral
+    aliases:
+      - dtjq
+    commands:
+      default: |
+        docker run --rm -i ghcr.io/jqlang/jq $args
+
+  - name: yq
+    category: terminal-tools
+    description: YAML/JSON/XML processor (like jq for YAML)
+    image: mikefarah/yq
+    type: ephemeral
+    aliases:
+      - dtyq
+    commands:
+      default: |
+        docker run --rm -v ${PWD}:/workdir mikefarah/yq $args
+
+  # ==================== Programming Languages ====================
+
+  - name: python
+    category: programming-languages
+    description: Python 3.12 interpreter and runtime
+    image: python:3.12
+    type: ephemeral
+    aliases:
+      - dtpython
+      - dtipython
+    commands:
+      default: |
+        docker run --rm -it -v ${PWD}:/app -w /app python:3.12 python $args
+      ipython: |
+        docker run --rm -it -v ${PWD}:/app -w /app python:3.12 sh -c "pip install -q ipython && ipython"
+    examples:
+      - description: Run Python script
+        command: dtpython script.py
+      - description: Interactive Python shell
+        command: dtpython
+      - description: IPython shell
+        command: dtipython
+
+  - name: node
+    category: programming-languages
+    description: Node.js 22 runtime
+    image: node:22
+    type: ephemeral
+    aliases:
+      - dtnode
+      - dtnpm
+      - dtnpx
+      - dtyarn
+    commands:
+      default: |
+        docker run --rm -it -v ${PWD}:/app -w /app node:22 node $args
+      npm: |
+        docker run --rm -v ${PWD}:/app -w /app node:22 npm $args
+      npx: |
+        docker run --rm -v ${PWD}:/app -w /app node:22 npx $args
+      yarn: |
+        docker run --rm -v ${PWD}:/app -w /app node:22 yarn $args
+
+  - name: go
+    category: programming-languages
+    description: Go language compiler and runtime
+    image: golang:1.22
+    type: ephemeral
+    aliases:
+      - dtgo
+    commands:
+      default: |
+        docker run --rm -v ${PWD}:/app -w /app golang:1.22 go $args
+
+  - name: ruby
+    category: programming-languages
+    description: Ruby interpreter
+    image: ruby:3.3
+    type: ephemeral
+    aliases:
+      - dtruby
+      - dtirb
+      - dtbundle
+    commands:
+      default: |
+        docker run --rm -it -v ${PWD}:/app -w /app ruby:3.3 ruby $args
+      irb: |
+        docker run --rm -it -v ${PWD}:/app -w /app ruby:3.3 irb
+      bundle: |
+        docker run --rm -v ${PWD}:/app -w /app ruby:3.3 bundle $args
+
+  - name: cargo
+    category: programming-languages
+    description: Rust package manager and build tool
+    image: rust:latest
+    type: ephemeral
+    aliases:
+      - dtcargo
+      - dtrustc
+    commands:
+      default: |
+        docker run --rm -v ${PWD}:/app -v cargo-cache:/usr/local/cargo -w /app rust:latest cargo $args
+      rustc: |
+        docker run --rm -v ${PWD}:/app -w /app rust:latest rustc $args
+    notes: |
+      The cargo-cache volume persists downloaded dependencies between runs.
+
+  # ==================== Development Environments ====================
+
+  - name: jupyter
+    category: development-environments
+    description: Jupyter Notebook for data science and analysis
+    image: jupyter/base-notebook
+    type: server
+    port: 8888
+    aliases:
+      - dtjupyter
+      - dtjupyterlab
+      - dtjupyterscipy
+    commands:
+      default: |
+        docker run --rm -p 8888:8888 -v ${PWD}:/home/jovyan/work jupyter/base-notebook
+      jupyterlab: |
+        docker run --rm -p 8888:8888 -v ${PWD}:/home/jovyan/work jupyter/datascience-notebook
+      scipy: |
+        docker run --rm -p 8888:8888 -v ${PWD}:/home/jovyan/work jupyter/scipy-notebook
+    notes: |
+      Access at http://localhost:8888. Copy the token from the logs.
+
+  - name: vscode
+    category: development-environments
+    description: VS Code Server in browser
+    image: codercom/code-server
+    type: server
+    port: 8080
+    aliases:
+      - dtvscode
+    commands:
+      default: |
+        docker run --rm -p 8080:8080 -v ${PWD}:/home/coder/project codercom/code-server --auth none
+    notes: |
+      Access at http://localhost:8080. No authentication by default.
+
+  - name: rstudio
+    category: development-environments
+    description: RStudio IDE for R programming
+    image: rocker/rstudio
+    type: server
+    port: 8787
+    aliases:
+      - dtrstudio
+      - dtrstudiotidy
+    commands:
+      default: |
+        docker run --rm -p 8787:8787 -e PASSWORD=rstudio -v ${PWD}:/home/rstudio rocker/rstudio
+      tidyverse: |
+        docker run --rm -p 8787:8787 -e PASSWORD=rstudio -v ${PWD}:/home/rstudio rocker/tidyverse
+    notes: |
+      Access at http://localhost:8787. Login: rstudio / rstudio
+
+  - name: vert
+    category: development-environments
+    description: Web-based terminal and development environment
+    image: ghcr.io/vert-sh/vert:latest
+    type: daemon
+    port: 3000
+    aliases:
+      - dtvert
+      - dtvertstop
+    is_function: true
+    notes: |
+      Supports multiple instances on different ports. Container persists between restarts.
+
+  - name: webtop
+    category: development-environments
+    description: Full Linux desktop environment in browser (no X11 needed)
+    image: lscr.io/linuxserver/webtop:ubuntu-mate
+    type: daemon
+    port: 3000
+    aliases:
+      - dtwebtop
+      - dtwebtopxfce
+      - dtwebtopstart
+      - dtwebtopstop
+      - dtwebtoplogs
+    commands:
+      default: |
+        docker run -d --name=webtop -p 3000:3000 -p 3001:3001 -v webtop-config:/config --shm-size="1gb" --restart unless-stopped lscr.io/linuxserver/webtop:ubuntu-mate
+      xfce: |
+        docker run -d --name=webtop -p 3000:3000 -p 3001:3001 -v webtop-config:/config --shm-size="1gb" --restart unless-stopped lscr.io/linuxserver/webtop:ubuntu-xfce
+      start: docker start webtop
+      stop: docker stop webtop
+      logs: docker logs webtop -f
+    notes: |
+      Access at http://localhost:3000. Full Ubuntu desktop with Firefox, terminal, and file manager. Default password: abc
+
+  - name: nodered
+    category: development-environments
+    description: Flow-based programming for IoT and automation
+    image: nodered/node-red
+    type: daemon
+    port: 1880
+    aliases:
+      - dtnodered
+      - dtnoderedstart
+      - dtnoderedstop
+      - dtnoderedlogs
+    commands:
+      default: |
+        docker run --rm -p 1880:1880 -v nodered-data:/data nodered/node-red
+      start: docker start nodered
+      stop: docker stop nodered
+      logs: docker logs nodered -f
+    notes: |
+      Access at http://localhost:1880. Flows stored in nodered-data volume.
+
+  - name: n8n
+    category: development-environments
+    description: Workflow automation (Zapier/Make alternative)
+    image: n8nio/n8n
+    type: daemon
+    port: 5678
+    aliases:
+      - dtn8n
+      - dtn8nstart
+      - dtn8nstop
+      - dtn8nlogs
+    commands:
+      default: |
+        docker run --rm -p 5678:5678 -v n8n-data:/home/node/.n8n n8nio/n8n
+      start: docker start n8n
+      stop: docker stop n8n
+      logs: docker logs n8n -f
+    notes: |
+      Access at http://localhost:5678. Supports 200+ integrations.
+
+  # ==================== AI & Machine Learning ====================
+
+  - name: ollama
+    category: ai-ml
+    description: Run large language models locally (Llama, Mistral, etc)
+    image: ollama/ollama
+    type: daemon
+    port: 11434
+    aliases:
+      - dtollama
+      - dtollamastart
+      - dtollamastop
+      - dtollamarun
+      - dtollamapull
+      - dtollamalist
+    commands:
+      start: |
+        docker run -d --restart unless-stopped -p 11434:11434 -v ollama-data:/root/.ollama --name ollama ollama/ollama
+      stop: docker stop ollama
+      exec: docker exec -it ollama ollama $args
+      run: docker exec -it ollama ollama run $args
+      pull: docker exec -it ollama ollama pull $args
+      list: docker exec -it ollama ollama list
+    notes: |
+      Start server first, then pull models. API at http://localhost:11434
+
+  - name: openwebui
+    category: ai-ml
+    description: ChatGPT-style web interface for Ollama
+    image: ghcr.io/open-webui/open-webui
+    type: daemon
+    port: 3000
+    aliases:
+      - dtopenwebui
+      - dtopenwebuistart
+      - dtopenwebuistop
+      - dtopenwebuilogs
+    commands:
+      default: |
+        docker run -d --restart unless-stopped -p 3000:8080 -v open-webui-data:/app/backend/data --add-host=host.docker.internal:host-gateway --name open-webui ghcr.io/open-webui/open-webui
+      start: docker start open-webui
+      stop: docker stop open-webui
+      logs: docker logs open-webui -f
+    notes: |
+      Access at http://localhost:3000. Requires Ollama running. First user to register becomes admin.
+
+# Add more tools here following the same pattern...
+# (I'll continue with databases, monitoring, etc. in the next section)
+
+  # ==================== Databases ====================
+
+  - name: postgres
+    category: databases
+    description: PostgreSQL relational database
+    image: postgres:16
+    type: server
+    port: 5432
+    aliases:
+      - dtpostgres
+      - dtpsql
+    commands:
+      default: |
+        docker run --rm -p 5432:5432 -e POSTGRES_PASSWORD=secret postgres:16
+      psql: |
+        docker run --rm -it postgres:16 psql $args
+
+  - name: mysql
+    category: databases
+    description: MySQL relational database
+    image: mysql:8
+    type: server
+    port: 3306
+    aliases:
+      - dtmysql
+      - dtmysqlclient
+    commands:
+      default: |
+        docker run --rm -p 3306:3306 -e MYSQL_ROOT_PASSWORD=secret mysql:8
+      client: |
+        docker run --rm -it mysql:8 mysql $args
+
+  - name: redis
+    category: databases
+    description: Redis in-memory data store
+    image: redis:7-alpine
+    type: server
+    port: 6379
+    aliases:
+      - dtredis
+      - dtrediscli
+    commands:
+      default: |
+        docker run --rm -p 6379:6379 redis:7-alpine
+      cli: |
+        docker run --rm -it redis:7-alpine redis-cli $args
+
+  - name: mongo
+    category: databases
+    description: MongoDB NoSQL document database
+    image: mongo:7
+    type: server
+    port: 27017
+    aliases:
+      - dtmongo
+      - dtmongosh
+    commands:
+      default: |
+        docker run --rm -p 27017:27017 mongo:7
+      mongosh: |
+        docker run --rm -it mongo:7 mongosh $args
+
+  - name: influxdb
+    category: databases
+    description: Time-series database for IoT and metrics
+    image: influxdb:2
+    type: daemon
+    port: 8086
+    aliases:
+      - dtinfluxdb
+      - dtinfluxstart
+      - dtinfluxstop
+      - dtinfluxcli
+    commands:
+      default: |
+        docker run --rm -p 8086:8086 -v influxdb-data:/var/lib/influxdb2 influxdb:2
+      start: docker start influxdb
+      stop: docker stop influxdb
+      cli: docker exec -it influxdb influx
+    notes: |
+      Access UI at http://localhost:8086. Perfect for storing sensor data.
+
+  - name: nocodb
+    category: databases
+    description: Turn any database into a smart spreadsheet (Airtable alternative)
+    image: nocodb/nocodb
+    type: daemon
+    port: 8080
+    aliases:
+      - dtnocodb
+      - dtnocodbstart
+      - dtnocodbstop
+      - dtnocodblogs
+    commands:
+      default: |
+        docker run --rm -p 8080:8080 -v nocodb-data:/usr/app/data nocodb/nocodb
+      start: docker start nocodb
+      stop: docker stop nocodb
+      logs: docker logs nocodb -f
+    notes: |
+      Access at http://localhost:8080. Works with PostgreSQL, MySQL, SQLite.
+
+  # ==================== Monitoring & Visualization ====================
+
+  - name: grafana
+    category: monitoring
+    description: Beautiful dashboards for metrics and time-series data
+    image: grafana/grafana
+    type: daemon
+    port: 3000
+    aliases:
+      - dtgrafana
+      - dtgrafanastart
+      - dtgrafanastop
+      - dtgrafanalogs
+    commands:
+      default: |
+        docker run --rm -p 3000:3000 -v grafana-data:/var/lib/grafana grafana/grafana
+      start: docker start grafana
+      stop: docker stop grafana
+      logs: docker logs grafana -f
+    notes: |
+      Access at http://localhost:3000. Default login: admin/admin
+
+  - name: uptime-kuma
+    category: monitoring
+    description: Self-hosted uptime monitoring with notifications
+    image: louislam/uptime-kuma
+    type: daemon
+    port: 3001
+    aliases:
+      - dtuptime
+      - dtuptimestart
+      - dtuptimestop
+      - dtuptimelogs
+    commands:
+      default: |
+        docker run --rm -p 3001:3001 -v uptime-kuma-data:/app/data louislam/uptime-kuma
+      start: docker start uptime-kuma
+      stop: docker stop uptime-kuma
+      logs: docker logs uptime-kuma -f
+    notes: |
+      Access at http://localhost:3001. Supports 50+ notification services.
+
+  - name: dozzle
+    category: monitoring
+    description: Real-time Docker container log viewer with web UI
+    image: amir20/dozzle
+    type: daemon
+    port: 8080
+    aliases:
+      - dtdozzle
+      - dtdozzlestart
+      - dtdozzlestop
+    commands:
+      default: |
+        docker run --rm -p 8080:8080 -v /var/run/docker.sock:/var/run/docker.sock:ro amir20/dozzle
+      start: docker start dozzle
+      stop: docker stop dozzle
+    notes: |
+      Access at http://localhost:8080. Zero configuration needed!
+
+  # ==================== DevOps & Cloud ====================
+
+  - name: localstack
+    category: devops-cloud
+    description: Local AWS cloud stack for testing (S3, Lambda, DynamoDB, etc)
+    image: localstack/localstack
+    type: daemon
+    port: 4566
+    aliases:
+      - dtlocalstack
+      - dtlocalstackstart
+      - dtlocalstackstop
+      - dtlocalstacklogs
+    commands:
+      default: |
+        docker run --rm -p 4566:4566 -v localstack-data:/var/lib/localstack localstack/localstack
+      start: docker start localstack
+      stop: docker stop localstack
+      logs: docker logs localstack -f
+    notes: |
+      All services at http://localhost:4566. Use AWS CLI with --endpoint-url=http://localhost:4566
+
+  - name: vault
+    category: devops-cloud
+    description: Secrets management by HashiCorp
+    image: hashicorp/vault
+    type: daemon
+    port: 8200
+    aliases:
+      - dtvault
+      - dtvaultstart
+      - dtvaultstop
+      - dtvaultcli
+    commands:
+      default: |
+        docker run --rm -p 8200:8200 -e VAULT_DEV_ROOT_TOKEN_ID=myroot hashicorp/vault
+      start: docker start vault
+      stop: docker stop vault
+      cli: docker exec -it vault vault $args
+    notes: |
+      Access at http://localhost:8200. Dev mode token: myroot. NOT for production!
+
+  # ==================== Web Servers & Security ====================
+
+  - name: caddy
+    category: web-servers-security
+    description: Modern web server with automatic HTTPS
+    image: caddy
+    type: server
+    port: 80
+    aliases:
+      - dtcaddy
+      - dtcaddystart
+      - dtcaddystop
+      - dtcaddyreload
+    commands:
+      default: |
+        docker run --rm -p 80:80 -p 443:443 -v ${PWD}:/usr/share/caddy caddy
+      start: docker start caddy
+      stop: docker stop caddy
+      reload: docker exec -w /etc/caddy caddy caddy reload
+    notes: |
+      Automatic SSL certificates from Let's Encrypt. Zero-downtime reloads.
+
+  - name: vaultwarden
+    category: web-servers-security
+    description: Lightweight Bitwarden password manager server
+    image: vaultwarden/server
+    type: daemon
+    port: 8080
+    aliases:
+      - dtvaultwarden
+      - dtvaultwardenstart
+      - dtvaultwardenstop
+      - dtvaultwardenlogs
+    commands:
+      default: |
+        docker run --rm -p 8080:80 -v vaultwarden-data:/data vaultwarden/server
+      start: docker start vaultwarden
+      stop: docker stop vaultwarden
+      logs: docker logs vaultwarden -f
+    notes: |
+      Access at http://localhost:8080. Compatible with Bitwarden clients. Use HTTPS in production!
+
+  # ==================== Message Brokers & IoT ====================
+
+  - name: mosquitto
+    category: message-brokers
+    description: Lightweight MQTT broker for IoT
+    image: eclipse-mosquitto
+    type: server
+    port: 1883
+    aliases:
+      - dtmosquitto
+      - dtmqttsub
+      - dtmqttpub
+      - dtmosquittopasswd
+    commands:
+      default: |
+        docker run --rm -p 1883:1883 -p 9001:9001 eclipse-mosquitto
+      sub: |
+        docker run --rm eclipse-mosquitto mosquitto_sub -h host.docker.internal $args
+      pub: |
+        docker run --rm eclipse-mosquitto mosquitto_pub -h host.docker.internal $args
+      passwd: |
+        docker run --rm -v ${PWD}:/mosquitto/config eclipse-mosquitto mosquitto_passwd $args
+    notes: |
+      Port 1883 for MQTT, 9001 for WebSockets. Use host.docker.internal to connect.
+
+  # ==================== Static Site Generators ====================
+
+  - name: jekyll
+    category: static-site-generators
+    description: Ruby-based static site generator, popular for GitHub Pages
+    image: jekyll/jekyll
+    type: server
+    port: 4000
+    aliases:
+      - dtjekyll
+      - dtjekyllserve
+      - dtjekyllsimple
+    commands:
+      default: |
+        docker run --rm -v ${PWD}:/srv/jekyll jekyll/jekyll jekyll $args
+      serve: |
+        docker run --rm -v ${PWD}:/srv/jekyll -p 4000:4000 jekyll/jekyll jekyll serve --watch --force_polling
+      simple: |
+        docker run --rm -v ${PWD}:/site -p 4000:4000 bretfisher/jekyll-serve
+      build: |
+        docker run --rm -v ${PWD}:/srv/jekyll jekyll/jekyll jekyll build
+    notes: |
+      The bretfisher/jekyll-serve image auto-runs bundle install and is useful for complex setups.
+
+  - name: hugo
+    category: static-site-generators
+    description: Fast static site generator written in Go
+    image: klakegg/hugo
+    type: server
+    port: 1313
+    aliases:
+      - dthugo
+      - dthugoserve
+    commands:
+      default: |
+        docker run --rm -v ${PWD}:/src klakegg/hugo $args
+      serve: |
+        docker run --rm -v ${PWD}:/src -p 1313:1313 klakegg/hugo server --bind 0.0.0.0
+      new: |
+        docker run --rm -v ${PWD}:/src klakegg/hugo new site mysite
+    notes: |
+      Access at http://localhost:1313
+
+  - name: mkdocs
+    category: static-site-generators
+    description: Python documentation generator with beautiful Material theme
+    image: squidfunk/mkdocs-material
+    type: server
+    port: 8000
+    aliases:
+      - dtmkdocs
+      - dtmkdocsserve
+    commands:
+      default: |
+        docker run --rm -v ${PWD}:/docs squidfunk/mkdocs-material $args
+      serve: |
+        docker run --rm -v ${PWD}:/docs -p 8000:8000 squidfunk/mkdocs-material
+      build: |
+        docker run --rm -v ${PWD}:/docs squidfunk/mkdocs-material build
+      new: |
+        docker run --rm -v ${PWD}:/docs squidfunk/mkdocs-material new .
+    notes: |
+      Access at http://localhost:8000
+
+  # ==================== Build & Task Runners ====================
+
+  - name: just
+    category: build-task-runners
+    description: Command runner for executing project-specific tasks and recipes
+    image: alpine
+    type: ephemeral
+    aliases:
+      - dtjust
+    commands:
+      default: |
+        docker run --rm -v ${PWD}:/workdir -w /workdir alpine sh -c "wget -q https://github.com/casey/just/releases/download/1.16.0/just-1.16.0-x86_64-unknown-linux-musl.tar.gz -O- | tar -xz -C /usr/local/bin && just $args"
+    notes: |
+      Binary download adds startup time. For frequent use, consider installing natively.
+
+  - name: make
+    category: build-task-runners
+    description: GNU Make for traditional Makefile execution
+    image: alpine
+    type: ephemeral
+    aliases:
+      - dtmake
+    commands:
+      default: |
+        docker run --rm -v ${PWD}:/workdir -w /workdir alpine sh -c "apk add --no-cache make > /dev/null 2>&1 && make $args"
+    notes: |
+      Supports parallel execution with -j flag.
+
+  # ==================== Testing Tools ====================
+
+  - name: playwright
+    category: testing-tools
+    description: Browser automation and E2E testing framework
+    image: mcr.microsoft.com/playwright:latest
+    type: ephemeral
+    aliases:
+      - dtplaywright
+      - dtplaywrighttest
+    commands:
+      default: |
+        docker run --rm -v ${PWD}:/work -w /work -it mcr.microsoft.com/playwright:latest /bin/bash
+      test: |
+        docker run --rm -v ${PWD}:/work -w /work mcr.microsoft.com/playwright:latest npx playwright test
+    notes: |
+      Includes Chromium, Firefox, and WebKit browsers.
+
+  # ==================== Code Quality & Linting ====================
+
+  - name: prettier
+    category: code-quality
+    description: Opinionated code formatter for multiple languages
+    image: tmknom/prettier
+    type: ephemeral
+    aliases:
+      - dtprettier
+      - dtprettiercheck
+      - dtprettierwrite
+    commands:
+      default: |
+        docker run --rm -v ${PWD}:/work tmknom/prettier $args
+      check: |
+        docker run --rm -v ${PWD}:/work tmknom/prettier --check .
+      write: |
+        docker run --rm -v ${PWD}:/work tmknom/prettier --write .
+
+  - name: black
+    category: code-quality
+    description: Python code formatter
+    image: cytopia/black
+    type: ephemeral
+    aliases:
+      - dtblack
+      - dtblackcheck
+    commands:
+      default: |
+        docker run --rm -v ${PWD}:/data cytopia/black $args
+      check: |
+        docker run --rm -v ${PWD}:/data cytopia/black --check .
+
+  - name: shellcheck
+    category: code-quality
+    description: Static analysis tool for shell scripts
+    image: koalaman/shellcheck
+    type: ephemeral
+    aliases:
+      - dtshellcheck
+    commands:
+      default: |
+        docker run --rm -v ${PWD}:/mnt koalaman/shellcheck $args
+
+  - name: hadolint
+    category: code-quality
+    description: Dockerfile linter
+    image: hadolint/hadolint
+    type: ephemeral
+    aliases:
+      - dthadolint
+    commands:
+      default: |
+        docker run --rm -i hadolint/hadolint < Dockerfile
+
+  - name: markdownlint
+    category: code-quality
+    description: Markdown linter
+    image: tmknom/markdownlint
+    type: ephemeral
+    aliases:
+      - dtmarkdownlint
+    commands:
+      default: |
+        docker run --rm -v ${PWD}:/work tmknom/markdownlint $args
+
+  # ==================== Media & Documents ====================
+
+  - name: pandoc
+    category: media-documents
+    description: Universal document converter (Markdown, PDF, DOCX, etc)
+    image: pandoc/latex
+    type: ephemeral
+    aliases:
+      - dtpandoc
+    commands:
+      default: |
+        docker run --rm -v ${PWD}:/data pandoc/latex $args
+    examples:
+      - description: Convert Markdown to PDF
+        command: dtpandoc input.md -o output.pdf
+      - description: Convert DOCX to Markdown
+        command: dtpandoc input.docx -o output.md
+
+  - name: ffmpeg
+    category: media-documents
+    description: Media processing tool for video and audio
+    image: jrottenberg/ffmpeg
+    type: ephemeral
+    aliases:
+      - dtffmpeg
+    commands:
+      default: |
+        docker run --rm -v ${PWD}:/tmp jrottenberg/ffmpeg $args
+    examples:
+      - description: Convert video to MP4
+        command: dtffmpeg -i input.avi output.mp4
+
+  - name: imagemagick
+    category: media-documents
+    description: Image manipulation and conversion
+    image: dpokidov/imagemagick
+    type: ephemeral
+    aliases:
+      - dtconvert
+      - dtidentify
+      - dtmogrify
+    commands:
+      default: |
+        docker run --rm -v ${PWD}:/imgs dpokidov/imagemagick convert $args
+      identify: |
+        docker run --rm -v ${PWD}:/imgs dpokidov/imagemagick identify $args
+      mogrify: |
+        docker run --rm -v ${PWD}:/imgs dpokidov/imagemagick mogrify $args
+
+  - name: yt-dlp
+    category: media-documents
+    description: Download videos from YouTube and other sites
+    image: jauderho/yt-dlp
+    type: ephemeral
+    aliases:
+      - dtytdlp
+    commands:
+      default: |
+        docker run --rm -v ${PWD}:/downloads jauderho/yt-dlp $args
+
+  - name: typst
+    category: media-documents
+    description: Modern markup-based typesetting system
+    image: ghcr.io/typst/typst
+    type: ephemeral
+    aliases:
+      - dttypst
+      - dttypstwatch
+    commands:
+      default: |
+        docker run --rm -v ${PWD}:/data ghcr.io/typst/typst compile $args
+      watch: |
+        docker run --rm -v ${PWD}:/data ghcr.io/typst/typst watch $args
+
+  - name: latex
+    category: media-documents
+    description: LaTeX document preparation system
+    image: texlive/texlive
+    type: ephemeral
+    aliases:
+      - dtpdflatex
+      - dtlatexmk
+      - dtxelatex
+    commands:
+      default: |
+        docker run --rm -v ${PWD}:/workdir -w /workdir texlive/texlive pdflatex $args
+      latexmk: |
+        docker run --rm -v ${PWD}:/workdir -w /workdir texlive/texlive latexmk -pdf $args
+      xelatex: |
+        docker run --rm -v ${PWD}:/workdir -w /workdir texlive/texlive xelatex $args
+
+  # ==================== DevOps & Cloud CLI ====================
+
+  - name: awscli
+    category: devops-cloud
+    description: AWS Command Line Interface
+    image: amazon/aws-cli
+    type: ephemeral
+    aliases:
+      - dtaws
+    commands:
+      default: |
+        docker run --rm -v ~/.aws:/root/.aws -v ${PWD}:/aws amazon/aws-cli $args
+
+  - name: azurecli
+    category: devops-cloud
+    description: Azure Command Line Interface
+    image: mcr.microsoft.com/azure-cli
+    type: ephemeral
+    aliases:
+      - dtaz
+    commands:
+      default: |
+        docker run --rm -v ${PWD}:/work -w /work mcr.microsoft.com/azure-cli az $args
+
+  - name: gcloud
+    category: devops-cloud
+    description: Google Cloud Command Line Interface
+    image: google/cloud-sdk
+    type: ephemeral
+    aliases:
+      - dtgcloud
+    commands:
+      default: |
+        docker run --rm -v ~/.config/gcloud:/root/.config/gcloud -v ${PWD}:/work -w /work google/cloud-sdk gcloud $args
+
+  - name: terraform
+    category: devops-cloud
+    description: Infrastructure as Code tool
+    image: hashicorp/terraform
+    type: ephemeral
+    aliases:
+      - dtterraform
+    commands:
+      default: |
+        docker run --rm -v ${PWD}:/workspace -w /workspace hashicorp/terraform $args
+
+  - name: ansible
+    category: devops-cloud
+    description: IT automation and configuration management
+    image: willhallonline/ansible
+    type: ephemeral
+    aliases:
+      - dtansible
+      - dtansibleplaybook
+    commands:
+      default: |
+        docker run --rm -v ${PWD}:/ansible -w /ansible willhallonline/ansible ansible $args
+      playbook: |
+        docker run --rm -v ${PWD}:/ansible -w /ansible willhallonline/ansible ansible-playbook $args
+
+  - name: helm
+    category: devops-cloud
+    description: Kubernetes package manager
+    image: alpine/helm
+    type: ephemeral
+    aliases:
+      - dthelm
+    commands:
+      default: |
+        docker run --rm -v ${PWD}:/apps -v ~/.kube:/root/.kube alpine/helm $args
+
+  # ==================== API Development ====================
+
+  - name: swagger-ui
+    category: api-development
+    description: Interactive API documentation viewer
+    image: swaggerapi/swagger-ui
+    type: server
+    port: 8080
+    aliases:
+      - dtswagger
+    commands:
+      default: |
+        docker run --rm -p 8080:8080 -e SWAGGER_JSON=/app/swagger.json -v ${PWD}:/app swaggerapi/swagger-ui
+
+  - name: httpie
+    category: api-development
+    description: User-friendly HTTP client
+    image: alpine
+    type: ephemeral
+    aliases:
+      - dthttp
+      - dthttpie
+    commands:
+      default: |
+        docker run --rm -it alpine sh -c "apk add --no-cache httpie > /dev/null 2>&1 && http $args"
+
+  - name: newman
+    category: api-development
+    description: Postman collection runner
+    image: postman/newman
+    type: ephemeral
+    aliases:
+      - dtnewman
+    commands:
+      default: |
+        docker run --rm -v ${PWD}:/etc/newman postman/newman run $args
+
+  # ==================== Git Tools ====================
+
+  - name: git
+    category: git-tools
+    description: Git version control
+    image: alpine/git
+    type: ephemeral
+    aliases:
+      - dtgit
+    commands:
+      default: |
+        docker run --rm -v ${PWD}:/git -w /git alpine/git $args
+
+  - name: gh
+    category: git-tools
+    description: GitHub CLI
+    image: ghcr.io/cli/cli
+    type: ephemeral
+    aliases:
+      - dtgh
+    commands:
+      default: |
+        docker run --rm -v ${PWD}:/repo -w /repo -v ~/.config/gh:/root/.config/gh ghcr.io/cli/cli $args
+
+  # ==================== Networking & Security ====================
+
+  - name: trivy
+    category: networking-security
+    description: Vulnerability scanner for containers and IaC
+    image: aquasec/trivy
+    type: ephemeral
+    aliases:
+      - dttrivy
+    commands:
+      default: |
+        docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v ${PWD}:/work aquasec/trivy $args
+
+  - name: nmap
+    category: networking-security
+    description: Network exploration and security scanning
+    image: instrumentisto/nmap
+    type: ephemeral
+    aliases:
+      - dtnmap
+    commands:
+      default: |
+        docker run --rm instrumentisto/nmap $args
+
+  - name: curl
+    category: networking-security
+    description: Command line HTTP client
+    image: curlimages/curl
+    type: ephemeral
+    aliases:
+      - dtcurl
+    commands:
+      default: |
+        docker run --rm curlimages/curl $args
+
+  - name: testssl
+    category: networking-security
+    description: SSL/TLS security testing
+    image: drwetter/testssl.sh
+    type: ephemeral
+    aliases:
+      - dttestssl
+    commands:
+      default: |
+        docker run --rm drwetter/testssl.sh $args
+
+  # ==================== Additional Terminal Tools ====================
+
+  - name: ncdu
+    category: terminal-tools
+    description: Disk usage analyzer with ncurses interface
+    image: alpine
+    type: ephemeral
+    aliases:
+      - dtncdu
+    commands:
+      default: |
+        docker run --rm -it -v ${PWD}:/data alpine sh -c "apk add --no-cache ncdu > /dev/null 2>&1 && ncdu /data"
+
+  - name: ranger
+    category: terminal-tools
+    description: Console file manager with VI key bindings
+    image: alpine
+    type: ephemeral
+    aliases:
+      - dtranger
+    commands:
+      default: |
+        docker run --rm -it -v ${PWD}:/data alpine sh -c "apk add --no-cache ranger > /dev/null 2>&1 && ranger /data"
